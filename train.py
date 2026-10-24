@@ -1,20 +1,12 @@
 """
-This training script can be run both on a single gpu in debug mode,
-and also in a larger training run with distributed data parallel (ddp).
+Treino do NEODataModel. Baseado no train.py do nanoGPT (Andrej Karpathy, licença MIT).
 
-To run on a single GPU, example:
-$ python train.py --batch_size=32 --compile=False
+Uso, em uma GPU ou na CPU:
+$ python train.py config/<arquivo>.py --batch_size=32
 
-To run with DDP on 4 gpus on 1 node, example:
-$ torchrun --standalone --nproc_per_node=4 train.py
-
-To run with DDP on 4 gpus across 2 nodes, example:
-- Run on the first (master) node with example IP 123.456.123.456:
-$ torchrun --nproc_per_node=8 --nnodes=2 --node_rank=0 --master_addr=123.456.123.456 --master_port=1234 train.py
-- Run on the worker node:
-$ torchrun --nproc_per_node=8 --nnodes=2 --node_rank=1 --master_addr=123.456.123.456 --master_port=1234 train.py
-(If your cluster does not have Infiniband interconnect prepend NCCL_IB_DISABLE=1)
+[removido] instruções de DDP com torchrun: o projeto usa uma GPU só.
 """
+
 
 import os
 import time
@@ -24,8 +16,10 @@ from contextlib import nullcontext
 
 import numpy as np
 import torch
-from torch.nn.parallel import DistributedDataParallel as DDP
-from torch.distributed import init_process_group, destroy_process_group
+
+# imports do DDP: o projeto usa uma GPU só ------------------> [removido] 
+#from torch.nn.parallel import DistributedDataParallel as DDP
+#from torch.distributed import init_process_group, destroy_process_group
 
 from model import GPTConfig, GPT
 
@@ -66,8 +60,9 @@ decay_lr = True # whether to decay the learning rate
 warmup_iters = 2000 # how many steps to warm up for
 lr_decay_iters = 600000 # should be ~= max_iters per Chinchilla
 min_lr = 6e-5 # minimum learning rate, should be ~= learning_rate/10 per Chinchilla
-# DDP settings
-backend = 'nccl' # 'nccl', 'gloo', etc.
+# DDP settings ----------------------> [Removido]
+#backend = 'nccl' # 'nccl', 'gloo', etc. 
+
 # system
 device = 'cuda' # examples: 'cpu', 'cuda', 'cuda:0', 'cuda:1' etc., or try 'mps' on macbooks
 
@@ -82,32 +77,39 @@ exec(open('configurator.py').read()) # overrides from command line or config fil
 config = {k: globals()[k] for k in config_keys} # will be useful for logging
 # -----------------------------------------------------------------------------
 
-# various inits, derived attributes, I/O setup
-ddp = int(os.environ.get('RANK', -1)) != -1 # is this a ddp run?
-if ddp:
-    init_process_group(backend=backend)
-    ddp_rank = int(os.environ['RANK'])
-    ddp_local_rank = int(os.environ['LOCAL_RANK'])
-    ddp_world_size = int(os.environ['WORLD_SIZE'])
-    device = f'cuda:{ddp_local_rank}'
-    torch.cuda.set_device(device)
-    master_process = ddp_rank == 0 # this process will do logging, checkpointing etc.
-    seed_offset = ddp_rank # each process gets a different seed
-    # world_size number of processes will be training simultaneously, so we can scale
-    # down the desired gradient accumulation iterations per process proportionally
-    assert gradient_accumulation_steps % ddp_world_size == 0
-    gradient_accumulation_steps //= ddp_world_size
-else:
-    # if not ddp, we are running on a single gpu, and one process
-    master_process = True
-    seed_offset = 0
-    ddp_world_size = 1
-tokens_per_iter = gradient_accumulation_steps * ddp_world_size * batch_size * block_size
-print(f"tokens per iteration will be: {tokens_per_iter:,}")
+# detecção e configuração do DDP: o projeto usa uma GPU só --------------------> [Removido]
+# various inits, derived attributes, I/O setup 
+#ddp = int(os.environ.get('RANK', -1)) != -1 # is this a ddp run?
+#if #ddp:
+    #init_process_group(backend=backend)
+    #ddp_rank = int(os.environ['RANK'])
+    #ddp_local_rank = int(os.environ['LOCAL_RANK'])
+    #ddp_world_size = int(os.environ['WORLD_SIZE'])
+    #device = f'cuda:{ddp_local_rank}'
+    #torch.cuda.set_device(device)
+    #master_process = ddp_rank == 0 # this process will do logging, checkpointing etc.
+    #seed_offset = ddp_rank # each process gets a different seed
+    ## world_size number of processes will be training simultaneously, so we can scale
+    ## down the desired gradient accumulation iterations per process proportionally
+    #assert gradient_accumulation_steps % ddp_world_size == 0
+    #gradient_accumulation_steps //= ddp_world_size
+#else:
+    ## if not ddp, we are running on a single gpu, and one process
+    #master_process = True
+    #seed_offset = 0
+    #ddp_world_size = 1
+#tokens_per_iter = gradient_accumulation_steps * ddp_world_size * batch_size * block_size
+#print(f"tokens per iteration will be: {tokens_per_iter:,}")
 
-if master_process:
-    os.makedirs(out_dir, exist_ok=True)
-torch.manual_seed(1337 + seed_offset)
+#if master_process:
+    #os.makedirs(out_dir, exist_ok=True)
+#torch.manual_seed(1337 + seed_offset)
+
+tokens_per_iter = gradient_accumulation_steps * batch_size * block_size
+print(f"tokens per iteration will be: {tokens_per_iter:,}")
+os.makedirs(out_dir, exist_ok=True)
+torch.manual_seed(1337)
+
 torch.backends.cuda.matmul.allow_tf32 = True # allow tf32 on matmul
 torch.backends.cudnn.allow_tf32 = True # allow tf32 on cudnn
 device_type = 'cuda' if 'cuda' in device else 'cpu' # for later use in torch.autocast
@@ -215,9 +217,10 @@ if compile:
     unoptimized_model = model
     model = torch.compile(model) # requires PyTorch 2.0
 
+# envolver o modelo no container do DDP -------------- [removido] 
 # wrap model into DDP container
-if ddp:
-    model = DDP(model, device_ids=[ddp_local_rank])
+#if ddp:
+    #model = DDP(model, device_ids=[ddp_local_rank])
 
 # helps estimate an arbitrarily accurate loss over either split using many batches
 @torch.no_grad()
@@ -258,7 +261,9 @@ def get_lr(it):
 X, Y = get_batch('train') # fetch the very first batch
 t0 = time.time()
 local_iter_num = 0 # number of iterations in the lifetime of this process
-raw_model = model.module if ddp else model # unwrap DDP container if needed
+#raw_model = model.module if ddp else model # unwrap DDP container if needed ------> [Removido]
+raw_model = model # [alterado] era model.module quando havia DDP
+
 # running_mfu = -1.0 -------> Mais informativo para grandes modelos [Removido]
 while True:
 
@@ -268,7 +273,7 @@ while True:
         param_group['lr'] = lr
 
     # evaluate the loss on train/val sets and write checkpoints
-    if iter_num % eval_interval == 0 and master_process:
+    if iter_num % eval_interval == 0: #and master_process: ----> [Removido]
         losses = estimate_loss()
         print(f"step {iter_num}: train loss {losses['train']:.4f}, val loss {losses['val']:.4f}")
         if wandb_log:
@@ -298,12 +303,13 @@ while True:
     # forward backward update, with optional gradient accumulation to simulate larger batch size
     ### and using the GradScaler if data type is float16 -----> [removido]
     for micro_step in range(gradient_accumulation_steps):
-        if ddp:
-            # in DDP training we only need to sync gradients at the last micro step.
-            # the official way to do this is with model.no_sync() context manager, but
-            # I really dislike that this bloats the code and forces us to repeat code
-            # looking at the source of that context manager, it just toggles this variable
-            model.require_backward_grad_sync = (micro_step == gradient_accumulation_steps - 1)
+        # sincronização de gradientes do DDP --------------------------> [Removido]
+        #if ddp:
+            ## in DDP training we only need to sync gradients at the last micro step.
+            ## the official way to do this is with model.no_sync() context manager, but
+            ## I really dislike that this bloats the code and forces us to repeat code
+            ## looking at the source of that context manager, it just toggles this variable
+            #model.require_backward_grad_sync = (micro_step == gradient_accumulation_steps - 1)
         with ctx:
             logits, loss = model(X, Y)
             loss = loss / gradient_accumulation_steps # scale the loss to account for gradient accumulation
@@ -333,7 +339,7 @@ while True:
     t1 = time.time()
     dt = t1 - t0
     t0 = t1
-    if iter_num % log_interval == 0 and master_process:
+    if iter_num % log_interval == 0: #and master_process: ------------> [Removido]
         # get loss as float. note: this is a CPU-GPU sync point
         # scale up to undo the division above, approximating the true total loss (exact would have been a sum)
         lossf = loss.item() * gradient_accumulation_steps
@@ -349,6 +355,6 @@ while True:
     # termination conditions
     if iter_num > max_iters:
         break
-
-if ddp:
-    destroy_process_group()
+# destroy_process_group do DDP -------------------> [removido]
+#if ddp:
+    #destroy_process_group()

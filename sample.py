@@ -6,7 +6,7 @@ import pickle
 from contextlib import nullcontext
 import torch
 # import tiktoken: o vocabulário vem sempre do meta.pkl do dataset -----------> [removido]
-from model import GPTConfig, GPT
+from model import NEODataConfig, NEODataModel
 
 # -----------------------------------------------------------------------------
 init_from = 'resume' # [alterado] só 'resume' (de um out_dir). [removido] variantes do GPT-2
@@ -37,8 +37,8 @@ if init_from == 'resume':
     # init from a model saved in a specific directory
     ckpt_path = os.path.join(out_dir, 'ckpt.pt')
     checkpoint = torch.load(ckpt_path, map_location=device)
-    gptconf = GPTConfig(**checkpoint['model_args'])
-    model = GPT(gptconf)
+    gptconf = NEODataConfig(**checkpoint['model_args'])
+    model = NEODataModel(gptconf)
     state_dict = checkpoint['model']
     unwanted_prefix = '_orig_mod.'
     for k,v in list(state_dict.items()):

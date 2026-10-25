@@ -305,12 +305,14 @@ class NEODataModel(nn.Module):
         #return mfu
 
     @torch.no_grad()
-    def generate(self, idx, max_new_tokens, temperature=1.0, top_k=None):
+    def generate(self, idx, max_new_tokens, temperature=1.0, top_k=None, greedy=False, stop_token=None):
         """
         Take a conditioning sequence of indices idx (LongTensor of shape (b,t)) and complete
         the sequence max_new_tokens times, feeding the predictions back into the model each time.
         Most likely you'll want to make sure to be in model.eval() mode of operation for this.
         """
+        terminou = torch.zeros(idx.size(0), 1, dtype=torch.bool, device=idx.device) # [alterado] linhas que já geraram o fim
+
         for _ in range(max_new_tokens):
             # if the sequence context is growing too long we must crop it at block_size
             idx_cond = idx if idx.size(1) <= self.config.block_size else idx[:, -self.config.block_size:]
@@ -322,11 +324,21 @@ class NEODataModel(nn.Module):
             if top_k is not None:
                 v, _ = torch.topk(logits, min(top_k, logits.size(-1)))
                 logits[logits < v[:, [-1]]] = -float('Inf')
-            # apply softmax to convert logits to (normalized) probabilities
-            probs = F.softmax(logits, dim=-1)
-            # sample from the distribution
-            idx_next = torch.multinomial(probs, num_samples=1)
+            if greedy:
+                # [alterado] escolhe sempre o token mais provável: a resposta fica determinística
+                idx_next = torch.argmax(logits, dim=-1, keepdim=True)
+            else:
+                # apply softmax to convert logits to (normalized) probabilities
+                probs = F.softmax(logits, dim=-1)
+                # sample from the distribution
+                idx_next = torch.multinomial(probs, num_samples=1)
             # append sampled index to the running sequence and continue
             idx = torch.cat((idx, idx_next), dim=1)
+            # [alterado] para quando todas as linhas do lote já geraram o token de fim
+            if stop_token is not None:
+                terminou = terminou | (idx_next == stop_token)
+                if terminou.all():
+                    break
+
 
         return idx

@@ -314,8 +314,12 @@ class NEODataModel(nn.Module):
         terminou = torch.zeros(idx.size(0), 1, dtype=torch.bool, device=idx.device) # [alterado] linhas que já geraram o fim
 
         for _ in range(max_new_tokens):
-            # if the sequence context is growing too long we must crop it at block_size
-            idx_cond = idx if idx.size(1) <= self.config.block_size else idx[:, -self.config.block_size:]
+            ## if the sequence context is growing too long we must crop it at block_size
+            ## idx_cond = idx if idx.size(1) <= self.config.block_size else idx[:, -self.config.block_size:]
+            ## [alterado] o nanoGPT cortava a sequência nas últimas block_size posições. Numa data,
+            ## cortar a entrada daria resposta errada sem aviso. Aqui o erro é explícito.
+            assert idx.size(1) <= self.config.block_size, "sequência maior que block_size"
+            idx_cond = idx
             # forward the model to get the logits for the index in the sequence
             logits, _ = self(idx_cond)
             # pluck the logits at the final step and scale by desired temperature

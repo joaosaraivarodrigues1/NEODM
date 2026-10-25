@@ -121,22 +121,27 @@ ctx = nullcontext() if device_type == 'cpu' else torch.amp.autocast(device_type=
 
 # poor man's data loader
 data_dir = os.path.join('data', dataset)
+# [alterado] cada exemplo é uma linha inteira "entrada=saída" com padding, e não um trecho
+# de um texto contínuo. Sorteamos linhas e marcamos com -1 no y o que não deve contar na loss.
 def get_batch(split):
-    # We recreate np.memmap every batch to avoid a memory leak, as per
-    # https://stackoverflow.com/questions/45132940/numpy-memmap-memory-usage-want-to-iterate-once/61472122#61472122
-    if split == 'train':
-        data = np.memmap(os.path.join(data_dir, 'train.bin'), dtype=np.uint16, mode='r')
-    else:
-        data = np.memmap(os.path.join(data_dir, 'val.bin'), dtype=np.uint16, mode='r')
-    ix = torch.randint(len(data) - block_size, (batch_size,))
-    x = torch.stack([torch.from_numpy((data[i:i+block_size]).astype(np.int64)) for i in ix])
-    y = torch.stack([torch.from_numpy((data[i+1:i+1+block_size]).astype(np.int64)) for i in ix])
+    data = np.memmap(os.path.join(data_dir, f'{split}.bin'), dtype=np.uint16, mode='r') # delimita os numeros em uma seq 1D
+    data = data.reshape(-1, seq_len)                       # (n_exemplos, seq_len)
+    ix = torch.randint(len(data), (batch_size,))           # sorteia batch_size linhas
+    seq = torch.from_numpy(data[ix.numpy()].astype(np.int64))  # (B, seq_len)
+    x = seq[:, :-1].contiguous()                           # entrada: todos menos o último
+    y = seq[:, 1:].clone()                                 # alvo: a mesma linha deslocada em 1
+    # máscara: a loss só conta a resposta (depois do '=') e o fim de linha
+    pos_sep = (seq == sep_id).int().argmax(dim=1)          # posição do '=' em cada linha
+    pos = torch.arange(seq_len - 1)
+    y[pos[None, :] < pos_sep[:, None]] = -1                # antes do '=': entrada, não conta # None adiciona dimensão
+    y[y == pad_id] = -1                                    # padding: não conta
     if device_type == 'cuda':
         # pin arrays x,y, which allows us to move them to GPU asynchronously (non_blocking=True)
-        x, y = x.pin_memory().to(device, non_blocking=True), y.pin_memory().to(device, non_blocking=True)
+        x, y = x.pin_memory().to(device, non_blocking=True), y.pin_memory().to(device, non_blocking=True) # Fixa origem e transmite
     else:
         x, y = x.to(device), y.to(device)
     return x, y
+
 
 # init these up here, can override if init_from='resume' (i.e. from a checkpoint)
 iter_num = 0
@@ -150,6 +155,11 @@ if os.path.exists(meta_path):
         meta = pickle.load(f)
     meta_vocab_size = meta['vocab_size']
     print(f"found vocab_size = {meta_vocab_size} (inside {meta_path})")
+    
+    # [alterado] tamanhos e tokens especiais definidos pelo prepare.py
+    seq_len, pad_id, sep_id = meta['seq_len'], meta['pad_id'], meta['sep_id']
+    assert block_size >= seq_len - 1, f"block_size precisa ser pelo menos {seq_len - 1}"
+
 
 # model init
 model_args = dict(n_layer=n_layer, n_head=n_head, n_embd=n_embd, block_size=block_size,

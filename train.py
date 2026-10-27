@@ -48,6 +48,13 @@ n_head = 12
 n_embd = 768
 dropout = 0.0 # for pretraining 0 is good, for finetuning try 0.1+
 bias = False # do we use bias inside LayerNorm and Linear layers?
+
+# ablação: cada opção desliga uma peça do nanoGPT. O padrão é o comportamento original. [Novo]
+ativacao = 'gelu'       # 'gelu' ou 'relu', na MLP
+weight_tying = True     # True: o embedding de entrada e o lm_head dividem os mesmos pesos
+flash = True            # True: atenção fundida (scaled_dot_product_attention); False: a manual
+init_cproj = True       # True: inicialização menor nas projeções c_proj, como no GPT-2
+seed = 1337             # semente do sorteio: pesos iniciais e ordem dos lotes [Novo]
 # adamw optimizer
 learning_rate = 6e-4 # max learning rate
 max_iters = 600000 # total number of training iterations
@@ -108,7 +115,7 @@ config = {k: globals()[k] for k in config_keys} # will be useful for logging
 tokens_per_iter = gradient_accumulation_steps * batch_size * block_size
 print(f"tokens per iteration will be: {tokens_per_iter:,}")
 os.makedirs(out_dir, exist_ok=True)
-torch.manual_seed(1337)
+torch.manual_seed(seed)
 
 torch.backends.cuda.matmul.allow_tf32 = True # allow tf32 on matmul
 torch.backends.cudnn.allow_tf32 = True # allow tf32 on cudnn
@@ -163,7 +170,8 @@ if os.path.exists(meta_path):
 
 # model init
 model_args = dict(n_layer=n_layer, n_head=n_head, n_embd=n_embd, block_size=block_size,
-                  bias=bias, vocab_size=None, dropout=dropout) # start with model_args from command line
+                  bias=bias, vocab_size=None, dropout=dropout, # start with model_args from command line
+                  ativacao=ativacao, weight_tying=weight_tying, flash=flash, init_cproj=init_cproj) # [Novo] ablação
 if init_from == 'scratch':
     # init a new model from scratch
     print("Initializing a new model from scratch")
@@ -270,6 +278,7 @@ def get_lr(it):
 # training loop
 X, Y = get_batch('train') # fetch the very first batch
 t0 = time.time()
+inicio = t0 # [Novo] para medir o tempo total de treino no metricas.csv
 local_iter_num = 0 # number of iterations in the lifetime of this process
 #raw_model = model.module if ddp else model # unwrap DDP container if needed ------> [Removido]
 raw_model = model # [alterado] era model.module quando havia DDP
@@ -286,6 +295,15 @@ while True:
     if iter_num % eval_interval == 0: #and master_process: ----> [Removido]
         losses = estimate_loss()
         print(f"step {iter_num}: train loss {losses['train']:.4f}, val loss {losses['val']:.4f}")
+        
+                # [Novo] no lugar do wandb: uma linha por avaliação em out_dir/metricas.csv.
+        # No passo 0 o arquivo é recriado, para não misturar com uma run anterior.
+        modo = 'w' if iter_num == 0 else 'a'
+        with open(os.path.join(out_dir, 'metricas.csv'), modo) as f:
+            if iter_num == 0:
+                f.write("iter,train_loss,val_loss,lr,segundos\n")
+            f.write(f"{iter_num},{losses['train']:.6f},{losses['val']:.6f},{lr:.6g},{time.time() - inicio:.1f}\n")
+        
         # [removido] wandb.log
         #if wandb_log:
             #wandb.log({

@@ -44,7 +44,7 @@ for linha in linhas:
     grupos[len(linha['input'])].append(linha)
 
 # gerar a resposta de cada linha
-tamanho_resposta = len('2023-12-25\n')
+tamanho_resposta = len('2023-12-25T\n')   # data ISO + marca T/F + fim de linha
 with torch.no_grad():
     for tamanho, grupo in grupos.items():
         for i in range(0, len(grupo), batch_size):
@@ -55,11 +55,21 @@ with torch.no_grad():
                 texto = ''.join(itos[t] for t in ids)
                 linha['previsto'] = texto.split('\n')[0]   # corta no fim de linha
 
-# medir e mostrar
+# medir e mostrar: o acerto geral mistura partes diferentes; o que importa é o acerto por grupo
+
 acertos = sum(l['previsto'] == l['target'] for l in linhas)
 print(f"{split}: acerto exato {acertos / len(linhas):.2%} ({acertos:,} de {len(linhas):,})")
+
+for coluna in ['parte', 'tipo']:
+    print(f"\npor {coluna}:")
+    for valor in sorted({l[coluna] for l in linhas}):
+        grupo = [l for l in linhas if l[coluna] == valor]
+        acertos = sum(l['previsto'] == l['target'] for l in grupo)
+        print(f"  {valor:<12} {acertos / len(grupo):7.2%}  ({len(grupo):,} linhas)")
+
+
 
 erros = [l for l in linhas if l['previsto'] != l['target']]
 print(f"\n{n_exemplos} exemplos" + (" de erro:" if erros else ":"))
 for l in (erros or linhas)[:n_exemplos]:
-    print(f"  {l['input']:<26} previsto: {l['previsto']:<12} correto: {l['target']}")
+    print(f"  {l['input']:<42} previsto: {l['previsto']:<13} correto: {l['target']}")

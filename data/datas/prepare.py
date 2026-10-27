@@ -1,7 +1,7 @@
 """
 Prepara o dataset de datas para o NEODataModel.
 
-Lê dados.csv, divide as DATAS em treino/validação/teste, tokeniza por caractere e grava:
+Lê dados.csv, separa as linhas conforme a coluna 'conjunto' (decidida pelo gerar_dados.py), tokeniza por caractere e grava:
 - train.bin, val.bin, test.bin: uma linha por exemplo, todas com o mesmo tamanho (padding)
 - train.csv, val.csv, test.csv: as linhas originais de cada conjunto, usadas na avaliação
 - meta.pkl: vocabulário e tamanhos
@@ -9,7 +9,6 @@ Lê dados.csv, divide as DATAS em treino/validação/teste, tokeniza por caracte
 import os
 import csv
 import pickle
-import random
 import numpy as np
 
 pasta = os.path.dirname(__file__)
@@ -22,19 +21,9 @@ with open(os.path.join(pasta, 'dados.csv'), encoding='utf-8', newline='') as f:
     linhas = list(csv.DictReader(f))
 print(f"linhas lidas: {len(linhas):,}")
 
-# 2. dividir POR DATA: os 10 formatos de uma data vão todos para o mesmo conjunto
-datas = sorted({l['target'] for l in linhas})
-random.Random(1337).shuffle(datas)  # embaralha sempre igual (seed fixa)
-n_train = int(0.8 * len(datas))
-n_val = int(0.1 * len(datas))
-conjunto = {}
-for i, d in enumerate(datas):
-    if i < n_train:
-        conjunto[d] = 'train'
-    elif i < n_train + n_val:
-        conjunto[d] = 'val'
-    else:
-        conjunto[d] = 'test'
+# 2. a divisão já vem pronta: o gerar_dados.py decide o conjunto de cada linha (coluna 'conjunto')
+#    e confere que não há vazamento. Aqui não se sorteia nada.
+
 
 # 3. montar o texto de cada exemplo e o vocabulário de caracteres
 textos = [l['input'] + SEP + l['target'] + FIM for l in linhas]
@@ -48,7 +37,7 @@ print(f"vocabulário: {vocab_size} tokens | maior sequência: {seq_len} caracter
 
 # 4. codificar cada conjunto, completar com padding e gravar
 for split in ['train', 'val', 'test']:
-    indices = [i for i, l in enumerate(linhas) if conjunto[l['target']] == split] # cria 3 listas temporarias
+    indices = [i for i, l in enumerate(linhas) if l['conjunto'] == split] # cria 3 listas temporarias
     arr = np.zeros((len(indices), seq_len), dtype=np.uint16)  # começa tudo com 0 = PAD
     for linha, i in enumerate(indices):
         ids = [stoi[c] for c in textos[i]]

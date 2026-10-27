@@ -1,11 +1,13 @@
 # Treino do NEODataModel na tarefa de datas (data em português -> data ISO).
 # Modelo pequeno: a tarefa é simples e a máquina tem uma MX550 com 2 GB.
+# config BASE: cada experimento tem um arquivo em config/runs/ só com o que muda, e o seu out_dir.
+# Uso: python train.py config/datas.py config/runs/<nome>.py
 
 out_dir = 'out-datas'
 dataset = 'datas'
 
 # avaliação
-eval_interval = 250       # avalia a cada 250 passos
+eval_interval = 100       # avalia a cada 100 passos: 21 pontos na curva de 2.000 passos
 eval_iters = 20           # lotes usados para estimar a loss em cada avaliação
 log_interval = 50
 always_save_checkpoint = False  # só salva quando a loss de validação melhora

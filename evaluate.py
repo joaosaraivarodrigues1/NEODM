@@ -92,6 +92,18 @@ def taxa(grupo, acertou):
     """Fração das linhas do grupo em que acertou(linha) é verdadeiro."""
     return sum(acertou(l) for l in grupo) / len(grupo)
 
+def precisao_recall_F(grupo):
+    """Precisão e recall da marca F (data inválida), a classe que queremos detectar.
+    Olha o último caractere gerado, para medir o veredito mesmo com os dígitos desalinhados."""
+    vp = sum(l['previsto'][-1:] == 'F' and l['target'][-1] == 'F' for l in grupo)  # previu F, era F
+    fp = sum(l['previsto'][-1:] == 'F' and l['target'][-1] == 'T' for l in grupo)  # previu F, era T
+    fn = sum(l['previsto'][-1:] != 'F' and l['target'][-1] == 'F' for l in grupo)  # era F, não previu F
+    return {
+        'precisao': vp / (vp + fp) if vp + fp else None,  # dos que marcou F, quantos eram F
+        'recall': vp / (vp + fn) if vp + fn else None,    # dos que eram F, quantos marcou F
+        'vp': vp, 'fp': fp, 'fn': fn,
+    }
+
 
 # a resposta tem posições fixas: AAAA-MM-DDT. Cada campo é um pedaço do texto.
 CAMPOS = {'ano': slice(0, 4), 'mes': slice(5, 7), 'dia': slice(8, 10), 'marca': slice(10, 11)}
@@ -112,6 +124,7 @@ resultado = {
     'por_parte': {},
     'parte_tipo': {},
     'por_campo': {},
+    'marca_F': {},
 }
 for nome, grupo in sorted(por_grupo.items()):
     resultado['por_parte'][nome] = taxa(grupo, lambda l: l['previsto'] == l['target'])
@@ -119,6 +132,7 @@ for nome, grupo in sorted(por_grupo.items()):
         campo: taxa(grupo, lambda l: l['previsto'][fatia] == l['target'][fatia])
         for campo, fatia in CAMPOS.items()
     }
+    resultado['marca_F'][nome] = precisao_recall_F(grupo)
     resultado['parte_tipo'][nome] = {
         tipo: taxa([l for l in grupo if l['tipo'] == tipo], lambda l: l['previsto'] == l['target'])
         for tipo in sorted({l['tipo'] for l in grupo})

@@ -13,7 +13,7 @@ always_save_checkpoint = False  # só salva quando a loss de validação melhora
 # dados
 gradient_accumulation_steps = 1
 batch_size = 256
-block_size = 34           # maior sequência (35) menos 1: x e y são a sequência deslocada
+block_size = 52           # maior sequência possível (53) menos 1: x e y são a sequência deslocada
 
 # modelo: cerca de 0,1 M de parâmetros
 n_layer = 2

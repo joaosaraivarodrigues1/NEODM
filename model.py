@@ -42,9 +42,9 @@ class CausalSelfAttention(nn.Module):
         self.n_embd = config.n_embd
         self.dropout = config.dropout
         # flash attention make GPU go brrrrr but support is only in PyTorch >= 2.0
-        self.flash = hasattr(torch.nn.functional, 'scaled_dot_product_attention')
+        self.flash = config.flash and hasattr(torch.nn.functional, 'scaled_dot_product_attention') # [alterado] ablação
         if not self.flash:
-            print("WARNING: using slow attention. Flash Attention requires PyTorch >= 2.0")
+            #print("WARNING: using slow attention. Flash Attention requires PyTorch >= 2.0") # [removido] agora pode ser escolha da ablação
             # causal mask to ensure that attention is only applied to the left in the input sequence
             self.register_buffer("bias", torch.tril(torch.ones(config.block_size, config.block_size))
                                         .view(1, 1, config.block_size, config.block_size))
@@ -80,13 +80,14 @@ class MLP(nn.Module):
     def __init__(self, config):
         super().__init__()
         self.c_fc    = nn.Linear(config.n_embd, 4 * config.n_embd, bias=config.bias)
-        self.gelu    = nn.GELU()
+        #self.gelu    = nn.GELU()
+        self.ativacao = nn.GELU() if config.ativacao == 'gelu' else nn.ReLU() # [alterado] ablação
         self.c_proj  = nn.Linear(4 * config.n_embd, config.n_embd, bias=config.bias)
         self.dropout = nn.Dropout(config.dropout)
 
     def forward(self, x):
         x = self.c_fc(x)
-        x = self.gelu(x)
+        x = self.ativacao(x)
         x = self.c_proj(x)
         x = self.dropout(x)
         return x
@@ -114,6 +115,11 @@ class NEODataConfig:
     n_embd: int = 768
     dropout: float = 0.0
     bias: bool = True # True: bias in Linears and LayerNorms, like GPT-2. False: a bit better and faster
+    # [Novo] ablação: o padrão é o nanoGPT original. Checkpoints antigos, sem estes campos, recebem o padrão.
+    ativacao: str = 'gelu'      # 'gelu' ou 'relu'
+    weight_tying: bool = True   # embedding de entrada e lm_head com os mesmos pesos
+    flash: bool = True          # atenção fundida (True) ou manual (False)
+    init_cproj: bool = True     # inicialização menor nas projeções c_proj
 
 class NEODataModel(nn.Module):
 
@@ -135,14 +141,16 @@ class NEODataModel(nn.Module):
         # "UserWarning: functional_call was passed multiple values for tied weights.
         # This behavior is deprecated and will be an error in future versions"
         # not 100% sure what this is, so far seems to be harmless. TODO investigate
-        self.transformer.wte.weight = self.lm_head.weight # https://paperswithcode.com/method/weight-tying
+        if config.weight_tying: # [alterado] ablação
+            self.transformer.wte.weight = self.lm_head.weight # https://paperswithcode.com/method/weight-tying
 
         # init all weights
         self.apply(self._init_weights)
         # apply special scaled init to the residual projections, per GPT-2 paper
-        for pn, p in self.named_parameters():
-            if pn.endswith('c_proj.weight'):
-                torch.nn.init.normal_(p, mean=0.0, std=0.02/math.sqrt(2 * config.n_layer))
+        if config.init_cproj: # [alterado] ablação
+            for pn, p in self.named_parameters():
+                if pn.endswith('c_proj.weight'):
+                    torch.nn.init.normal_(p, mean=0.0, std=0.02/math.sqrt(2 * config.n_layer))
 
         # report number of parameters
         print("number of parameters: %.2fM" % (self.get_num_params()/1e6,))

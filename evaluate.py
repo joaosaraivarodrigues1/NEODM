@@ -5,7 +5,7 @@ Para cada linha de um conjunto (teste, por padrão), entrega ao modelo "entrada=
 deixa ele completar até o fim de linha e compara com a data ISO correta.
 
 Uso:
-$ python evaluate.py --out_dir=runs/baseline --split=test
+$ python evaluate.py --out_dir=runs/base_s1 --split=test
 
 Além de imprimir, grava na pasta da run:
 - resultado_{split}.json: acertos por parte, parte x tipo e por campo, mais a config da run
@@ -21,7 +21,7 @@ import torch
 from model import NEODataConfig, NEODataModel
 
 # -----------------------------------------------------------------------------
-out_dir = 'runs/baseline' # pasta do checkpoint [alterado] era out-datas
+out_dir = 'runs/base_s1' # pasta do checkpoint [alterado] era out-datas
 split = 'test'          # 'train', 'val' ou 'test'
 batch_size = 1024       # quantas entradas gerar ao mesmo tempo
 device = 'cuda'         # 'cuda' ou 'cpu'

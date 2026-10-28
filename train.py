@@ -12,6 +12,7 @@ import os
 import time
 import math
 import pickle
+import subprocess
 from contextlib import nullcontext
 
 import numpy as np
@@ -82,6 +83,12 @@ compile = False # [alterado] torch.compile precisa do Triton, sem suporte oficia
 config_keys = [k for k,v in globals().items() if not k.startswith('_') and isinstance(v, (int, float, bool, str))]
 exec(open('configurator.py').read()) # overrides from command line or config file
 config = {k: globals()[k] for k in config_keys} # will be useful for logging
+# [Novo] commit do git: diz com qual versão do código a run foi treinada.
+# '-sujo' quando há arquivo versionado alterado e não commitado (arquivos novos, como runs/, não contam)
+commit = subprocess.run(['git', 'rev-parse', '--short', 'HEAD'], capture_output=True, text=True).stdout.strip()
+alterado = subprocess.run(['git', 'status', '--porcelain', '--untracked-files=no'], capture_output=True, text=True).stdout.strip()
+config['git_commit'] = commit + ('-sujo' if alterado else '')
+print(f"git_commit = {config['git_commit']}")
 # -----------------------------------------------------------------------------
 
 # detecção e configuração do DDP: o projeto usa uma GPU só --------------------> [Removido]

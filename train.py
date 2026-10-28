@@ -9,9 +9,11 @@ $ python train.py config/<arquivo>.py --batch_size=32
 
 
 import os
+import csv
 import time
 import math
 import pickle
+import random
 import subprocess
 from contextlib import nullcontext
 
@@ -56,6 +58,7 @@ weight_tying = True     # True: o embedding de entrada e o lm_head dividem os me
 flash = True            # True: atenção fundida (scaled_dot_product_attention); False: a manual
 init_cproj = True       # True: inicialização menor nas projeções c_proj, como no GPT-2
 seed = 1337             # semente do sorteio: pesos iniciais e ordem dos lotes [Novo]
+fracao_treino = 1.0     # fração das datas do treino usadas no treino (1.0 = todas) [Novo]
 # adamw optimizer
 learning_rate = 6e-4 # max learning rate
 max_iters = 600000 # total number of training iterations
@@ -137,12 +140,26 @@ ctx = nullcontext() if device_type == 'cpu' else torch.amp.autocast(device_type=
 
 # poor man's data loader
 data_dir = os.path.join('data', dataset)
+# [Novo] menos dados: sorteia uma fração das datas do treino. Todas as linhas de uma data entram juntas,
+# e a seed do sorteio é fixa: as runs de uma família usam o mesmo subconjunto, só a inicialização muda.
+linhas_treino = None
+if fracao_treino < 1.0:
+    with open(os.path.join(data_dir, 'train.csv'), encoding='utf-8', newline='') as f:
+        alvos = [l['target'] for l in csv.DictReader(f)]   # mesma ordem das linhas do train.bin
+    datas = sorted(set(alvos))
+    escolhidas = set(random.Random(1337).sample(datas, round(fracao_treino * len(datas))))
+    linhas_treino = torch.tensor([i for i, a in enumerate(alvos) if a in escolhidas])
+    print(f"fracao_treino = {fracao_treino}: {len(escolhidas):,} de {len(datas):,} datas, {len(linhas_treino):,} linhas")
+
 # [alterado] cada exemplo é uma linha inteira "entrada=saída" com padding, e não um trecho
 # de um texto contínuo. Sorteamos linhas e marcamos com -1 no y o que não deve contar na loss.
 def get_batch(split):
     data = np.memmap(os.path.join(data_dir, f'{split}.bin'), dtype=np.uint16, mode='r') # delimita os numeros em uma seq 1D
     data = data.reshape(-1, seq_len)                       # (n_exemplos, seq_len)
-    ix = torch.randint(len(data), (batch_size,))           # sorteia batch_size linhas
+    if split == 'train' and linhas_treino is not None:
+        ix = linhas_treino[torch.randint(len(linhas_treino), (batch_size,))]  # só as linhas das datas escolhidas
+    else:
+        ix = torch.randint(len(data), (batch_size,))       # sorteia batch_size linhas
     seq = torch.from_numpy(data[ix.numpy()].astype(np.int64))  # (B, seq_len)
     x = seq[:, :-1].contiguous()                           # entrada: todos menos o último
     y = seq[:, 1:].clone()                                 # alvo: a mesma linha deslocada em 1

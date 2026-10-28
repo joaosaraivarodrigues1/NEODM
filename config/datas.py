@@ -7,7 +7,7 @@ out_dir = 'out-datas'
 dataset = 'datas'
 
 # avaliação
-eval_interval = 100       # avalia a cada 100 passos: 21 pontos na curva de 2.000 passos
+eval_interval = 100       # avalia a cada 100 passos: 61 pontos na curva de 6.000 passos
 eval_iters = 20           # lotes usados para estimar a loss em cada avaliação
 log_interval = 50
 always_save_checkpoint = False  # só salva quando a loss de validação melhora
@@ -25,8 +25,8 @@ dropout = 0.0
 
 # otimização
 learning_rate = 1e-3
-max_iters = 2000
-lr_decay_iters = 2000     # igual a max_iters
+max_iters = 6000          # era 2.000: a loss ainda caía. Comparação na família par_iters2000
+lr_decay_iters = 6000     # igual a max_iters
 min_lr = 1e-4             # learning_rate / 10
 warmup_iters = 100
 beta2 = 0.99

@@ -1,0 +1,187 @@
+{
+  "run": "par_dropout02_s2",
+  "split": "test",
+  "config": {
+    "out_dir": "runs/par_dropout02_s2",
+    "eval_interval": 100,
+    "log_interval": 50,
+    "eval_iters": 20,
+    "eval_only": false,
+    "always_save_checkpoint": false,
+    "init_from": "scratch",
+    "dataset": "datas",
+    "gradient_accumulation_steps": 1,
+    "batch_size": 256,
+    "block_size": 52,
+    "n_layer": 2,
+    "n_head": 4,
+    "n_embd": 64,
+    "dropout": 0.2,
+    "bias": false,
+    "ativacao": "gelu",
+    "weight_tying": true,
+    "flash": true,
+    "init_cproj": true,
+    "seed": 1338,
+    "fracao_treino": 1.0,
+    "learning_rate": 0.001,
+    "max_iters": 6000,
+    "weight_decay": 0.1,
+    "beta1": 0.9,
+    "beta2": 0.99,
+    "grad_clip": 1.0,
+    "decay_lr": true,
+    "warmup_iters": 100,
+    "lr_decay_iters": 6000,
+    "min_lr": 0.0001,
+    "device": "cuda",
+    "dtype": "float32",
+    "compile": false,
+    "git_commit": "79a28b3",
+    "gpu": "Tesla T4"
+  },
+  "params": 106112,
+  "best_val_loss": 0.0050175851210951805,
+  "iter_do_checkpoint": 6000,
+  "acerto": 0.9633570555733731,
+  "por_parte": {
+    "anos_dentro": 0.9774007254677358,
+    "anos_fora_209x": 0.9776222292926079,
+    "anos_fora_2100": 0.46219890293346055,
+    "comum": 0.9751711991167309,
+    "formato": 0.9683030537301894,
+    "ruido": 0.963683442646653
+  },
+  "parte_tipo": {
+    "anos_dentro": {
+      "dia_longe": 0.9607522485690924,
+      "dia_perto": 0.9728610855565777,
+      "fronteira": 1.0,
+      "mes_longe": 0.9967862881628281,
+      "mes_perto": 0.8127883981542519,
+      "valida": 0.9849158653846154
+    },
+    "anos_fora_209x": {
+      "dia_longe": 0.9567762269248087,
+      "dia_perto": 0.9634817408704353,
+      "fronteira": 1.0,
+      "mes_longe": 0.9974570883661793,
+      "mes_perto": 0.8563340410474168,
+      "valida": 0.9843843843843844
+    },
+    "anos_fora_2100": {
+      "dia_longe": 0.5085470085470085,
+      "dia_perto": 0.5025380710659898,
+      "fronteira": 0.5,
+      "mes_longe": 0.0,
+      "mes_perto": 0.0,
+      "valida": 0.5075120192307693
+    },
+    "comum": {
+      "dia_longe": 0.959895379250218,
+      "dia_perto": 0.9732708735188758,
+      "fronteira": 1.0,
+      "mes_longe": 0.9963614311704063,
+      "mes_perto": 0.8408774373259053,
+      "valida": 0.9812297094642475
+    },
+    "formato": {
+      "dia_longe": 1.0,
+      "dia_perto": 0.9780487804878049,
+      "fronteira": 1.0,
+      "mes_longe": 0.9958246346555324,
+      "mes_perto": 0.8731343283582089,
+      "valida": 0.9759615384615384
+    },
+    "ruido": {
+      "dia_longe": 0.9507410636442895,
+      "dia_perto": 0.9718930834940755,
+      "fronteira": 0.9674234945705824,
+      "mes_longe": 0.9533050333535477,
+      "mes_perto": 0.814066852367688,
+      "valida": 0.971753926270167
+    }
+  },
+  "por_campo": {
+    "anos_dentro": {
+      "ano": 1.0,
+      "mes": 0.9998329515082093,
+      "dia": 0.9972317678503245,
+      "marca": 0.9800019091256205
+    },
+    "anos_fora_209x": {
+      "ano": 1.0,
+      "mes": 0.9996288047512992,
+      "dia": 0.9970304380103935,
+      "marca": 0.9803531657651925
+    },
+    "anos_fora_2100": {
+      "ano": 0.4686382065347007,
+      "mes": 0.9997615072740281,
+      "dia": 0.9973765800143095,
+      "marca": 0.9818745528261388
+    },
+    "comum": {
+      "ano": 1.0,
+      "mes": 0.9997239783914512,
+      "dia": 0.9971609205977839,
+      "marca": 0.9777868324548836
+    },
+    "formato": {
+      "ano": 1.0,
+      "mes": 1.0,
+      "dia": 1.0,
+      "marca": 0.9683030537301894
+    },
+    "ruido": {
+      "ano": 0.9995005323273879,
+      "mes": 0.9989222013380477,
+      "dia": 0.9883939485548298,
+      "marca": 0.9745140048106623
+    }
+  },
+  "marca_F": {
+    "anos_dentro": {
+      "precisao": 0.9429026387625113,
+      "recall": 0.9612708719851577,
+      "vp": 8290,
+      "fp": 502,
+      "fn": 334
+    },
+    "anos_fora_209x": {
+      "precisao": 0.9410727776378746,
+      "recall": 0.9648851019881229,
+      "vp": 7474,
+      "fp": 468,
+      "fn": 272
+    },
+    "anos_fora_2100": {
+      "precisao": 0.9438202247191011,
+      "recall": 0.9710982658959537,
+      "vp": 840,
+      "fp": 50,
+      "fn": 25
+    },
+    "comum": {
+      "precisao": 0.9287902469521726,
+      "recall": 0.9646753246753247,
+      "vp": 14856,
+      "fp": 1139,
+      "fn": 544
+    },
+    "formato": {
+      "precisao": 0.9565689467969598,
+      "recall": 0.9544962080173348,
+      "vp": 3524,
+      "fp": 160,
+      "fn": 168
+    },
+    "ruido": {
+      "precisao": 0.9182026934773164,
+      "recall": 0.9607142857142857,
+      "vp": 14795,
+      "fp": 1318,
+      "fn": 605
+    }
+  }
+}

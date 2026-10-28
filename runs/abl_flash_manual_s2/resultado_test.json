@@ -1,0 +1,185 @@
+{
+  "run": "abl_flash_manual_s2",
+  "split": "test",
+  "config": {
+    "out_dir": "runs/abl_flash_manual_s2",
+    "eval_interval": 100,
+    "log_interval": 50,
+    "eval_iters": 20,
+    "eval_only": false,
+    "always_save_checkpoint": false,
+    "init_from": "scratch",
+    "dataset": "datas",
+    "gradient_accumulation_steps": 1,
+    "batch_size": 256,
+    "block_size": 52,
+    "n_layer": 2,
+    "n_head": 4,
+    "n_embd": 64,
+    "dropout": 0.0,
+    "bias": false,
+    "ativacao": "gelu",
+    "weight_tying": true,
+    "flash": false,
+    "init_cproj": true,
+    "seed": 1338,
+    "learning_rate": 0.001,
+    "max_iters": 6000,
+    "weight_decay": 0.1,
+    "beta1": 0.9,
+    "beta2": 0.99,
+    "grad_clip": 1.0,
+    "decay_lr": true,
+    "warmup_iters": 100,
+    "lr_decay_iters": 6000,
+    "min_lr": 0.0001,
+    "device": "cuda",
+    "dtype": "float32",
+    "compile": false,
+    "git_commit": "180a1ad"
+  },
+  "params": 106112,
+  "best_val_loss": 0.00011986878234893084,
+  "iter_do_checkpoint": 5400,
+  "acerto": 0.9412316348859019,
+  "por_parte": {
+    "anos_dentro": 1.0,
+    "anos_fora_209x": 0.999522748965956,
+    "anos_fora_2100": 0.04746005246839971,
+    "comum": 0.9994085251245384,
+    "formato": 0.0,
+    "ruido": 0.9990667840853826
+  },
+  "parte_tipo": {
+    "anos_dentro": {
+      "dia_longe": 1.0,
+      "dia_perto": 1.0,
+      "fronteira": 1.0,
+      "mes_longe": 1.0,
+      "mes_perto": 1.0,
+      "valida": 1.0
+    },
+    "anos_fora_209x": {
+      "dia_longe": 1.0,
+      "dia_perto": 1.0,
+      "fronteira": 1.0,
+      "mes_longe": 1.0,
+      "mes_perto": 1.0,
+      "valida": 0.9993993993993994
+    },
+    "anos_fora_2100": {
+      "dia_longe": 0.07264957264957266,
+      "dia_perto": 0.030456852791878174,
+      "fronteira": 0.06451612903225806,
+      "mes_longe": 0.0,
+      "mes_perto": 0.0,
+      "valida": 0.051682692307692304
+    },
+    "comum": {
+      "dia_longe": 1.0,
+      "dia_perto": 1.0,
+      "fronteira": 1.0,
+      "mes_longe": 1.0,
+      "mes_perto": 1.0,
+      "valida": 0.9992584169674198
+    },
+    "formato": {
+      "dia_longe": 0.0,
+      "dia_perto": 0.0,
+      "fronteira": 0.0,
+      "mes_longe": 0.0,
+      "mes_perto": 0.0,
+      "valida": 0.0
+    },
+    "ruido": {
+      "dia_longe": 0.9984742807323452,
+      "dia_perto": 1.0,
+      "fronteira": 1.0,
+      "mes_longe": 1.0,
+      "mes_perto": 1.0,
+      "valida": 0.9989453041314414
+    }
+  },
+  "por_campo": {
+    "anos_dentro": {
+      "ano": 1.0,
+      "mes": 1.0,
+      "dia": 1.0,
+      "marca": 1.0
+    },
+    "anos_fora_209x": {
+      "ano": 1.0,
+      "mes": 1.0,
+      "dia": 1.0,
+      "marca": 0.999522748965956
+    },
+    "anos_fora_2100": {
+      "ano": 0.04746005246839971,
+      "mes": 1.0,
+      "dia": 1.0,
+      "marca": 1.0
+    },
+    "comum": {
+      "ano": 1.0,
+      "mes": 1.0,
+      "dia": 1.0,
+      "marca": 0.9994085251245384
+    },
+    "formato": {
+      "ano": 0.0,
+      "mes": 0.009760340162350212,
+      "dia": 0.4029764205643603,
+      "marca": 0.26459219172787013
+    },
+    "ruido": {
+      "ano": 1.0,
+      "mes": 0.9999737122277572,
+      "dia": 0.9996845467330872,
+      "marca": 0.9993690934661742
+    }
+  },
+  "marca_F": {
+    "anos_dentro": {
+      "precisao": 1.0,
+      "recall": 1.0,
+      "vp": 8624,
+      "fp": 0,
+      "fn": 0
+    },
+    "anos_fora_209x": {
+      "precisao": 0.9976816074188563,
+      "recall": 1.0,
+      "vp": 7746,
+      "fp": 18,
+      "fn": 0
+    },
+    "anos_fora_2100": {
+      "precisao": 1.0,
+      "recall": 1.0,
+      "vp": 865,
+      "fp": 0,
+      "fn": 0
+    },
+    "comum": {
+      "precisao": 0.9970864357397216,
+      "recall": 1.0,
+      "vp": 15400,
+      "fp": 45,
+      "fn": 0
+    },
+    "formato": {
+      "precisao": 0.6275964391691394,
+      "recall": 0.34371614301191766,
+      "vp": 1269,
+      "fp": 753,
+      "fn": 2423
+    },
+    "ruido": {
+      "precisao": 0.9970860584083403,
+      "recall": 0.9998701298701299,
+      "vp": 15398,
+      "fp": 45,
+      "fn": 2
+    }
+  }
+}

@@ -1,0 +1,186 @@
+{
+  "run": "par_modelo_08M_s2",
+  "split": "test",
+  "config": {
+    "out_dir": "runs/par_modelo_08M_s2",
+    "eval_interval": 100,
+    "log_interval": 50,
+    "eval_iters": 20,
+    "eval_only": false,
+    "always_save_checkpoint": false,
+    "init_from": "scratch",
+    "dataset": "datas",
+    "gradient_accumulation_steps": 1,
+    "batch_size": 256,
+    "block_size": 52,
+    "n_layer": 4,
+    "n_head": 4,
+    "n_embd": 128,
+    "dropout": 0.0,
+    "bias": false,
+    "ativacao": "gelu",
+    "weight_tying": true,
+    "flash": true,
+    "init_cproj": true,
+    "seed": 1338,
+    "learning_rate": 0.001,
+    "max_iters": 6000,
+    "weight_decay": 0.1,
+    "beta1": 0.9,
+    "beta2": 0.99,
+    "grad_clip": 1.0,
+    "decay_lr": true,
+    "warmup_iters": 100,
+    "lr_decay_iters": 6000,
+    "min_lr": 0.0001,
+    "device": "cuda",
+    "dtype": "float32",
+    "compile": false,
+    "git_commit": "1816fb5",
+    "gpu": "Tesla T4"
+  },
+  "params": 802560,
+  "best_val_loss": 8.766398241277784e-05,
+  "iter_do_checkpoint": 5600,
+  "acerto": 0.980359121965874,
+  "por_parte": {
+    "anos_dentro": 1.0,
+    "anos_fora_209x": 0.9994962350196204,
+    "anos_fora_2100": 0.8368709754352492,
+    "comum": 0.999395381238417,
+    "formato": 0.612872052570545,
+    "ruido": 0.9989090574519263
+  },
+  "parte_tipo": {
+    "anos_dentro": {
+      "dia_longe": 1.0,
+      "dia_perto": 1.0,
+      "fronteira": 1.0,
+      "mes_longe": 1.0,
+      "mes_perto": 1.0,
+      "valida": 1.0
+    },
+    "anos_fora_209x": {
+      "dia_longe": 0.9995497523638001,
+      "dia_perto": 1.0,
+      "fronteira": 1.0,
+      "mes_longe": 1.0,
+      "mes_perto": 1.0,
+      "valida": 0.9993993993993994
+    },
+    "anos_fora_2100": {
+      "dia_longe": 0.8760683760683761,
+      "dia_perto": 0.8375634517766497,
+      "fronteira": 0.8870967741935484,
+      "mes_longe": 0.539906103286385,
+      "mes_perto": 0.4591194968553459,
+      "valida": 0.8701923076923077
+    },
+    "comum": {
+      "dia_longe": 0.9997820401046208,
+      "dia_perto": 1.0,
+      "fronteira": 1.0,
+      "mes_longe": 1.0,
+      "mes_perto": 1.0,
+      "valida": 0.9992584169674198
+    },
+    "formato": {
+      "dia_longe": 0.518095238095238,
+      "dia_perto": 0.5414634146341464,
+      "fronteira": 0.38596491228070173,
+      "mes_longe": 0.6290883785664579,
+      "mes_perto": 0.9361525704809287,
+      "valida": 0.5665564903846154
+    },
+    "ruido": {
+      "dia_longe": 0.9958587619877942,
+      "dia_perto": 0.99972444199504,
+      "fronteira": 1.0,
+      "mes_longe": 0.9996967859308672,
+      "mes_perto": 1.0,
+      "valida": 0.998978263377334
+    }
+  },
+  "por_campo": {
+    "anos_dentro": {
+      "ano": 1.0,
+      "mes": 1.0,
+      "dia": 1.0,
+      "marca": 1.0
+    },
+    "anos_fora_209x": {
+      "ano": 1.0,
+      "mes": 1.0,
+      "dia": 0.9999734860536642,
+      "marca": 0.9994962350196204
+    },
+    "anos_fora_2100": {
+      "ano": 0.8385404245170522,
+      "mes": 0.9947531600286191,
+      "dia": 0.9997615072740281,
+      "marca": 0.9995230145480563
+    },
+    "comum": {
+      "ano": 1.0,
+      "mes": 1.0,
+      "dia": 0.9999868561138786,
+      "marca": 0.999395381238417
+    },
+    "formato": {
+      "ano": 1.0,
+      "mes": 0.6297835330498647,
+      "dia": 1.0,
+      "marca": 0.7940664862775415
+    },
+    "ruido": {
+      "ano": 1.0,
+      "mes": 0.9999079927971504,
+      "dia": 0.9997371222775726,
+      "marca": 0.999079927971504
+    }
+  },
+  "marca_F": {
+    "anos_dentro": {
+      "precisao": 1.0,
+      "recall": 1.0,
+      "vp": 8624,
+      "fp": 0,
+      "fn": 0
+    },
+    "anos_fora_209x": {
+      "precisao": 0.9976813087723818,
+      "recall": 0.9998709011102505,
+      "vp": 7745,
+      "fp": 18,
+      "fn": 1
+    },
+    "anos_fora_2100": {
+      "precisao": 1.0,
+      "recall": 0.9976878612716763,
+      "vp": 863,
+      "fp": 0,
+      "fn": 2
+    },
+    "comum": {
+      "precisao": 0.997086247086247,
+      "recall": 0.9999350649350649,
+      "vp": 15399,
+      "fp": 45,
+      "fn": 1
+    },
+    "formato": {
+      "precisao": 0.6382639503985829,
+      "recall": 0.9758938244853738,
+      "vp": 3603,
+      "fp": 2042,
+      "fn": 89
+    },
+    "ruido": {
+      "precisao": 0.996309485270314,
+      "recall": 0.9992207792207792,
+      "vp": 15388,
+      "fp": 57,
+      "fn": 12
+    }
+  }
+}

@@ -1,0 +1,186 @@
+{
+  "run": "par_modelo_48M_s2",
+  "split": "test",
+  "config": {
+    "out_dir": "runs/par_modelo_48M_s2",
+    "eval_interval": 100,
+    "log_interval": 50,
+    "eval_iters": 20,
+    "eval_only": false,
+    "always_save_checkpoint": false,
+    "init_from": "scratch",
+    "dataset": "datas",
+    "gradient_accumulation_steps": 1,
+    "batch_size": 256,
+    "block_size": 52,
+    "n_layer": 6,
+    "n_head": 8,
+    "n_embd": 256,
+    "dropout": 0.0,
+    "bias": false,
+    "ativacao": "gelu",
+    "weight_tying": true,
+    "flash": true,
+    "init_cproj": true,
+    "seed": 1338,
+    "learning_rate": 0.001,
+    "max_iters": 6000,
+    "weight_decay": 0.1,
+    "beta1": 0.9,
+    "beta2": 0.99,
+    "grad_clip": 1.0,
+    "decay_lr": true,
+    "warmup_iters": 100,
+    "lr_decay_iters": 6000,
+    "min_lr": 0.0001,
+    "device": "cuda",
+    "dtype": "float32",
+    "compile": false,
+    "git_commit": "1816fb5",
+    "gpu": "Tesla T4"
+  },
+  "params": 4751872,
+  "best_val_loss": 3.493524855002761e-05,
+  "iter_do_checkpoint": 5200,
+  "acerto": 0.9751383346256745,
+  "por_parte": {
+    "anos_dentro": 1.0,
+    "anos_fora_209x": 0.999522748965956,
+    "anos_fora_2100": 0.567135702361078,
+    "comum": 0.9993822373522956,
+    "formato": 0.5967336683417085,
+    "ruido": 0.9990667840853826
+  },
+  "parte_tipo": {
+    "anos_dentro": {
+      "dia_longe": 1.0,
+      "dia_perto": 1.0,
+      "fronteira": 1.0,
+      "mes_longe": 1.0,
+      "mes_perto": 1.0,
+      "valida": 1.0
+    },
+    "anos_fora_209x": {
+      "dia_longe": 1.0,
+      "dia_perto": 1.0,
+      "fronteira": 1.0,
+      "mes_longe": 1.0,
+      "mes_perto": 1.0,
+      "valida": 0.9993993993993994
+    },
+    "anos_fora_2100": {
+      "dia_longe": 0.5982905982905983,
+      "dia_perto": 0.5786802030456852,
+      "fronteira": 0.5645161290322581,
+      "mes_longe": 0.13615023474178403,
+      "mes_perto": 0.1761006289308176,
+      "valida": 0.6105769230769231
+    },
+    "comum": {
+      "dia_longe": 0.9995640802092415,
+      "dia_perto": 1.0,
+      "fronteira": 1.0,
+      "mes_longe": 1.0,
+      "mes_perto": 1.0,
+      "valida": 0.9992584169674198
+    },
+    "formato": {
+      "dia_longe": 0.6057142857142858,
+      "dia_perto": 0.48048780487804876,
+      "fronteira": 1.0,
+      "mes_longe": 0.5963813500347948,
+      "mes_perto": 0.6252072968490879,
+      "valida": 0.5911959134615384
+    },
+    "ruido": {
+      "dia_longe": 0.9967306015693113,
+      "dia_perto": 1.0,
+      "fronteira": 1.0,
+      "mes_longe": 1.0,
+      "mes_perto": 1.0,
+      "valida": 0.9990771411150113
+    }
+  },
+  "por_campo": {
+    "anos_dentro": {
+      "ano": 1.0,
+      "mes": 1.0,
+      "dia": 1.0,
+      "marca": 1.0
+    },
+    "anos_fora_209x": {
+      "ano": 1.0,
+      "mes": 1.0,
+      "dia": 1.0,
+      "marca": 0.999522748965956
+    },
+    "anos_fora_2100": {
+      "ano": 0.5807297877414739,
+      "mes": 0.986644407345576,
+      "dia": 1.0,
+      "marca": 0.9995230145480563
+    },
+    "comum": {
+      "ano": 1.0,
+      "mes": 1.0,
+      "dia": 0.9999737122277572,
+      "marca": 0.9994085251245384
+    },
+    "formato": {
+      "ano": 1.0,
+      "mes": 1.0,
+      "dia": 0.5972168534982605,
+      "marca": 0.9956513335910321
+    },
+    "ruido": {
+      "ano": 0.9999474244555145,
+      "mes": 0.9999605683416359,
+      "dia": 0.9997765539359367,
+      "marca": 0.999290230149446
+    }
+  },
+  "marca_F": {
+    "anos_dentro": {
+      "precisao": 1.0,
+      "recall": 1.0,
+      "vp": 8624,
+      "fp": 0,
+      "fn": 0
+    },
+    "anos_fora_209x": {
+      "precisao": 0.9976816074188563,
+      "recall": 1.0,
+      "vp": 7746,
+      "fp": 18,
+      "fn": 0
+    },
+    "anos_fora_2100": {
+      "precisao": 1.0,
+      "recall": 0.9976878612716763,
+      "vp": 863,
+      "fp": 0,
+      "fn": 2
+    },
+    "comum": {
+      "precisao": 0.9970864357397216,
+      "recall": 1.0,
+      "vp": 15400,
+      "fp": 45,
+      "fn": 0
+    },
+    "formato": {
+      "precisao": 0.998632759092152,
+      "recall": 0.9891657638136512,
+      "vp": 3652,
+      "fp": 5,
+      "fn": 40
+    },
+    "ruido": {
+      "precisao": 0.9967629159652984,
+      "recall": 0.9997402597402597,
+      "vp": 15396,
+      "fp": 50,
+      "fn": 4
+    }
+  }
+}

@@ -89,6 +89,8 @@ commit = subprocess.run(['git', 'rev-parse', '--short', 'HEAD'], capture_output=
 alterado = subprocess.run(['git', 'status', '--porcelain', '--untracked-files=no'], capture_output=True, text=True).stdout.strip()
 config['git_commit'] = commit + ('-sujo' if alterado else '')
 print(f"git_commit = {config['git_commit']}")
+# [Novo] em qual GPU a run foi treinada: as runs vêm de duas máquinas (MX550 local e T4 no Colab)
+config['gpu'] = torch.cuda.get_device_name() if 'cuda' in device else 'cpu'
 # -----------------------------------------------------------------------------
 
 # detecção e configuração do DDP: o projeto usa uma GPU só --------------------> [Removido]

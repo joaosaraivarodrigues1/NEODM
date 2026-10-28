@@ -10,6 +10,6 @@ __pycache__/
 input.txt
 env/
 venv/
-out*/
+/out*/
 data/**/*.csv
 runs/*/erros_*.csv
